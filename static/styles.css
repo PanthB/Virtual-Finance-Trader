@@ -1,0 +1,90 @@
+nav .navbar-brand
+{
+    /* size for brand */
+    font-size: xx-large;
+}
+
+
+main .form-control
+{
+    /* Center form controls */
+    display: inline-block;
+
+    /* Override Bootstrap's 100% width for form controls */
+    width: auto;
+}
+
+main
+{
+    /* Scroll horizontally as needed */
+    overflow-x: auto;
+
+    /* Center contents */
+    text-align: center;
+}
+
+main img
+{
+    /* Constrain images on small screens */
+    max-width: 100%;
+}
+
+.quote {
+    font-size: 2rem;
+}
+
+td {
+    padding: 10px;
+    border-top: 1px solid #1b76bc;
+    border-spacing: 2px;
+
+}
+
+tr {
+    padding: 10px;
+    border-top: 1px solid #1b76bc;
+    border-spacing: 2px;
+
+}
+
+th {
+    padding: 10px;
+    border-top: 1px solid #1b76bc;
+    border-spacing: 2px;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: left;
+}
+
+.main {
+    width: 100%;
+}
+
+.autosell {
+    width: 90px;
+}
+
+#button1 {
+    background-color: #007bff;
+    border-color: #007bff;
+    border: 1px solid transparent;
+    display: inline-block;
+    padding: .375rem .75rem;
+    border-radius: 0.30rem;
+    color: white
+}
+
+#button2 {
+    background-color: #FFCC0A;
+    border-color: #FFCC0A;
+    border: 1px solid transparent;
+    display: inline-block;
+    padding: .375rem .75rem;
+    border-radius: 0.30rem;
+    color: white
+
+}

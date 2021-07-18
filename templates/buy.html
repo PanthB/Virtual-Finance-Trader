@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Buy
+{% endblock %}
+
+{% block main %}
+    <h3>Buy Stock: </h3>
+    <form action="/buy" method="post">
+        <input name="symbol" type="text" placeholder="Stock Symbol">
+        <input name="shares" type="number" min="1" placeholder="# of Shares">
+        <input id = "button1" type="submit" name = "purchase" value = "Buy Stock">
+        <br></br>
+        <h3>Buy Cryptocurrency: </h3>
+        <input name="c_symbol" type="text" placeholder="Crypto Symbol">
+        <input name="amount" type="number" min="0.001" step = "0.001" placeholder="Amount">
+        <input id = "button2" type="submit" name = "purchase" value = "Buy Crypto">
+    </form>
+        
+{% endblock %}

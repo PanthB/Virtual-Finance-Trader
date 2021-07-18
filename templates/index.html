@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Index
+{% endblock %}
+
+{% block main %}
+    <b>Current Cash Balance: {{ balance_var }}</b>
+    <BR></BR>
+    <div>
+        <h5 class = "main">Stock Portfolio</h5>
+        <table class = "main">
+            <head>
+                <th>Name of Stock</th>
+                <th>Symbol</th>
+                <th># of Shares</th>
+                <th>Current Price</th>
+                <th>Total Value</th>
+            </head>
+            <tbody>
+                {% for i in range(length) %}
+                <tr>
+                    <td>  {{ rows[i]['companyName'] }}  </td>
+                    <td>  {{ rows[i]['symbol'] }}  </td>
+                    <td>  {{ rows[i]['shares'] }}  </td>
+                    <td>  {{ usd(prices[i]) }}  </td>
+                    <td>  {{ usd(prices[i]*(rows[i]['shares'])) }}  </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <BR></BR>
+        <h5 class = "main">Cryptocurrency Portfolio</h5>
+        <table class = "main">
+            <head>
+                <th>Name of Crypto</th>
+                <th>Symbol</th>
+                <th>Amount</th>
+                <th>Current Price</th>
+                <th>Total Value</th>
+            </head>
+            <tbody>
+                {% for j in range(c_length) %}
+                <tr>
+                    <td>  {{ c_rows[j]['cryptoName'] }}  </td>
+                    <td>  {{ c_rows[j]['symbol'] }}  </td>
+                    <td>  {{ c_rows[j]['amount'] }}  </td>
+                    <td>  {{ usd(c_prices[j]) }}  </td>
+                    <td>  {{ usd(c_prices[j]*(c_rows[j]['amount'])) }}  </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <BR></BR>
+    <b>Grand Total: {{ grand_total }}</b>
+
+{% endblock %}

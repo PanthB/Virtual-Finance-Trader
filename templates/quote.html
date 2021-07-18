@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Quote
+{% endblock %}
+
+{% block main %}
+    <h3>Stock Quote: </h3>
+    <form action="/quote" method="post" >
+        <input name="symbol" placeholder="Stock Symbol" type="text">
+        <input id = "button1" type="submit" name = "enter" value = "Get Stock Quote">
+        <br></br>
+        <h3>Cryptocurrency Quote: </h3>
+        <input name="c_symbol" placeholder="Crypto Symbol" type="text">
+        <input id = "button2" type="submit" name = "enter" value = "Get Crypto Quote">
+    </form>
+
+{% endblock %}
