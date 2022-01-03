@@ -9,7 +9,7 @@ from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from helpers import apology, login_required, lookup, c_lookup, usd
+from helpers import login_required, lookup, c_lookup, usd
 
 # Configure application
 app = Flask(__name__)
@@ -26,7 +26,6 @@ def after_request(response):
     response.headers["Pragma"] = "no-cache"
     return response
 
-
 # Custom filter
 app.jinja_env.filters["usd"] = usd
 
@@ -39,10 +38,16 @@ Session(app)
 # Connect to SQLite database
 con = sqlite3.connect("finance.db")
 db = con.cursor()
+# SQLite database has the following tables: 
+# crypto with columns: id, user_id, cryptoName, amount, price, totalValue, symbol
+# holdings (for stocks) with columns: id, user_id, companyName, shares, price, totalValue, symbol
+# purchases with columns: id, user_id, cryptoName, company_name, shares, time, price, type
+# users with columns: id, username, hash, cash
+
 # API key must be set
 if not os.environ.get("API_KEY"):
     try:
-        os.environ["API_KEY"]=""
+        os.environ["API_KEY"]="pk_2391dc231592460fa04fa1541a3ee575"
     except:
         raise RuntimeError("API_KEY not set")
 
@@ -50,22 +55,26 @@ if not os.environ.get("API_KEY"):
 @login_required
 def index():
     """Show portfolio of stocks"""
+    #using a row factory to access columns from the database by name 
     with sqlite3.connect("finance.db") as con:
         con.row_factory = sqlite3.Row
         db = con.cursor()
+
         userid = session["user_id"]
-        
+
+        #executing SQL statements with the execute method of the cursor         
         db.execute("SELECT * FROM holdings WHERE user_id = ?", (userid,))
         rows = db.fetchall()
 
         prices = []
-
+        #loop through user's holdings and append price of each stock to list 
         for i in range(len(rows)):
             row = rows[i]["symbol"]
             final = lookup(row)['price']
             prices.append(final)
 
         grand_total = 0
+        #loop through user's holdings and calculate total value including shares
         for j in range(len(rows)):
             total = prices[j]*rows[j]["shares"]
             grand_total = grand_total + total
@@ -80,6 +89,8 @@ def index():
 
         balance_var = balance()
 
+        #function to return a tuple with number of crypto holdings, 
+        #list of holdings that can be indexed, list of prices of each crypto, and total value of all crypto 
         def crypto():
             db.execute("SELECT * FROM crypto WHERE user_id = ?", (userid,))
             c_rows = db.fetchall()
@@ -87,7 +98,7 @@ def index():
             c_prices = []
 
             for i in range(len(c_rows)):
-                row = rows[i]["symbol"]
+                row = c_rows[i]["symbol"]
                 final = c_lookup(row)['price']
                 c_prices.append(final)
 
@@ -98,6 +109,7 @@ def index():
 
             c_length = len(c_rows)
             return c_length, c_rows, c_prices, crypto_total 
+        
         
         c_tuple = crypto()
 
@@ -116,7 +128,7 @@ def index():
 @login_required
 def buy():
     """Buy shares of stock"""
-
+    #Check if user sent a POST request by submitting the HTML form  
     if request.method == "POST":
         with sqlite3.connect("finance.db") as con:
             con.row_factory = sqlite3.Row            
@@ -144,7 +156,7 @@ def buy():
                 if cash<total_cost:
                     flash("Cannot afford")
                     return redirect("/buy")
-
+                #update SQL database once purchase is validated  
                 db.execute("INSERT INTO purchases (user_id, company_name, shares, time, price, type) VALUES(?, ?, ?, ?, ?, ?)", ((userid), str(lookup(symbol)['name']), int(shares), (current_time), float(price), (str(type_buy))))
                 updatedCash = cash - total_cost
                 db.execute("UPDATE users SET cash = ? WHERE id = ?", ((updatedCash), (userid)))
@@ -164,6 +176,7 @@ def buy():
                 check()
 
                 return redirect("/")
+            #if the form with the name "purchase" does not have the value "Buy Stock", the user is buying crypto:
             else:                    
                 c_symbol = request.form.get("c_symbol")
                 if c_lookup(c_symbol) is None or request.form.get("amount") is None:
@@ -222,11 +235,13 @@ def history():
         
         userid = session["user_id"]
 
+        #Select all elements from purchases 
         db.execute("SELECT * FROM purchases WHERE user_id = ?", (userid,))
         stocks = db.fetchall()
         con.commit()
 
         return render_template("history.html", stocks=stocks, usd=usd)
+
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -324,25 +339,36 @@ def register():
     """Register user"""
     session.clear()
 
+    #if user submits registration form, check if username is unique and password is valid, then update database
     if request.method == "POST":
         with sqlite3.connect("finance.db") as con:
+            con.row_factory = sqlite3.Row
             db = con.cursor()
-            user_list = db.execute("SELECT username FROM users")
+            db.execute("SELECT * FROM users")
+            user_list = db.fetchall()
+            
+            usernames = []
+            for i in range(len(user_list)):
+                name = user_list[i]["username"]
+                usernames.append(name)
+
             username = request.form.get("username")
-            if not username or username in user_list:
+            password = request.form.get("password")
+            confirmation = request.form.get("confirmation")
+
+            if (not username) or (username in usernames):
                 flash("Invalid username")
                 return redirect("/register")
 
-            password = request.form.get("password")
-            confirmation = request.form.get("confirmation")
             if (not password or not confirmation) or (confirmation!=password):
                 flash("Invalid password")
                 return redirect("/register")
+            
             password_hash = generate_password_hash(request.form.get("password"), method='pbkdf2:sha256', salt_length=8)
             db.execute("INSERT INTO users (username, hash) VALUES(?, ?)", (request.form.get("username"), password_hash))
             con.commit()
             return redirect("/")
-
+    #display registration page with form
     else:
         return render_template("register.html")
 
