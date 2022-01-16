@@ -47,7 +47,7 @@ db = con.cursor()
 # API key must be set
 if not os.environ.get("API_KEY"):
     try:
-        os.environ["API_KEY"]="pk_2391dc231592460fa04fa1541a3ee575"
+        os.environ["API_KEY"]=""
     except:
         raise RuntimeError("API_KEY not set")
 
